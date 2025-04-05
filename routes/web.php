@@ -81,7 +81,7 @@ Route::put('/orders/{order}/reviews/{product}/{review}', [ReviewController::clas
         'product' => '\d+',
         'review' => '\d+'
     ]);
-//bago
+
 // Admin Review Management
 Route::get('/admin/reviews', [ReviewController::class, 'adminIndex'])
     ->name('admin.reviews.index')
@@ -110,17 +110,22 @@ Route::get('/', [ProductController::class, 'publicIndex'])->name('products.publi
 Route::get('/products', [ProductController::class, 'index'])->name('products.index')
     ->middleware(['auth', 'can:admin']);
 
-    //cart
-    Route::prefix('cart')->middleware('auth')->group(function () {
-        Route::get('/', [CartController::class, 'index'])->name('cart.index');
-        Route::post('/add/{product}', [CartController::class, 'add'])->name('cart.add');
-        Route::post('/update/{id}', [CartController::class, 'update'])->name('cart.update');
-        Route::post('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    });
 
-// Add checkout route (we'll implement this later)
-Route::get('/checkout', [OrderController::class, 'create'])->name('checkout')->middleware('auth');
-Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store')->middleware('auth');
+
+
+
+
+// Cart Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // Checkout Routes
+    Route::get('/checkout', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+});
 
 // Profile routes
 Route::get('/profile', [UserController::class, 'showProfile'])->name('profile.show');

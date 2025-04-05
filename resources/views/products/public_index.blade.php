@@ -39,7 +39,7 @@
     <div class="shp-header text-center mb-5">
         <h1 class="shp-title display-4 fw-bold">SOAP HAVEN</h1>
         <p class="shp-subtitle lead">Luxurious, Handcrafted Soaps for Discerning Tastes</p>
-        
+
         <!-- Price Filter -->
         <div class="price-filter my-4">
             <form action="{{ route('products.public_index') }}" method="GET" class="row g-3 align-items-center justify-content-center">
@@ -141,7 +141,7 @@
                         <p class="shp-product-description card-text mb-3">{{ Str::limit($product->description, 100) }}</p>
                     </div>
                 </a>
-                
+
                 <!-- Single Card Footer -->
                 <div class="card-footer shp-product-footer">
                     <div class="d-flex justify-content-between align-items-center">
@@ -150,26 +150,42 @@
                             {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
                         </span>
                     </div>
-                    
+
                     @if($product->stock > 0)
-                        @auth
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-3">
-                                @csrf
-                                <div class="input-group">
-                                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control" style="width: 70px;">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-cart-plus"></i> Add to Cart
-                                    </button>
-                                </div>
-                            </form>
-                        @else
-                            <div class="mt-3">
-                                <a href="{{ route('login') }}" class="btn btn-outline-primary w-100">
-                                    <i class="fas fa-sign-in-alt"></i> Login to Add to Cart
-                                </a>
+                    @auth
+                        <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-3">
+                            @csrf
+                            <div class="input-group">
+                                <input type="number"
+                                       name="quantity"
+                                       value="1"
+                                       min="1"
+                                       max="{{ $product->stock }}"
+                                       class="form-control quantity-input"
+                                       style="width: 70px;"
+                                       aria-label="Quantity">
+                                <button type="submit" class="btn btn-primary add-to-cart-btn">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                </button>
                             </div>
-                        @endauth
-                    @endif
+                            @if($product->stock < 10)
+                                <small class="text-warning d-block mt-1">
+                                    Only {{ $product->stock }} left in stock!
+                                </small>
+                            @endif
+                        </form>
+                    @else
+                        <div class="mt-3">
+                            <a href="{{ route('login') }}" class="btn btn-outline-primary w-100 login-prompt">
+                                <i class="fas fa-sign-in-alt"></i> Login to Purchase
+                            </a>
+                        </div>
+                    @endauth
+                @else
+                    <button class="btn btn-outline-secondary mt-3 w-100" disabled>
+                        <i class="fas fa-times-circle"></i> Out of Stock
+                    </button>
+                @endif
                 </div>
             </div>
         </div>
@@ -346,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gap: 0.5rem;
         margin: 1.5rem 0;
     }
-    
+
 
     .btn-category {
         background-color: #f8f5ff;

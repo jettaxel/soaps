@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-5">
     <h1 class="mb-4">Your Shopping Cart</h1>
-    
+
     @if(count($cartItems) > 0)
         <div class="table-responsive">
             <table class="table">
@@ -59,7 +59,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Cart Total</h5>
                         <p class="card-text">${{ number_format($total, 2) }}</p>
-                        <a href="{{ route('checkout') }}" class="btn btn-primary">Proceed to Checkout</a>
+                        <a href="{{ route('orders.create') }}" class="btn btn-primary">Proceed to Checkout</a>
                     </div>
                 </div>
             </div>

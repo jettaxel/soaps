@@ -21,6 +21,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     // Add these relationships
   // Add these relationships
+
+
+
   public function orders()
   {
       return $this->hasMany(Order::class);

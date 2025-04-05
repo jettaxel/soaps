@@ -15,10 +15,8 @@
         @if(auth()->user()->role === 'admin')
         <!-- Admin Sidebar -->
         <div class="sidebar">
-            
-            <a href="{{ route('profile.show') }}">
-                <i class="fas fa-user"></i> My Profile
-            </a>
+
+
             <div class="admin-header">
                 <i class="fas fa-user-shield"></i> Admin Dashboard
             </div>
@@ -43,9 +41,7 @@
             <div class="admin-header mt-4">
                 <i class="fas fa-chart-line"></i> Charts & Reports
             </div>
-            <a href="{{ route('administrator.sales.index') }}">
-                <i class="fas fa-chart-pie"></i> Sales Reports
-            </a>
+
             <!-- You can add more report links here if needed -->
             <!-- <a href="#">
                 <i class="fas fa-chart-bar"></i> Another Report
@@ -53,6 +49,11 @@
             <div class="admin-header mt-4">
                 <i class="fas fa-user"></i> User Actions
             </div>
+            <a href="{{ route('profile.show') }}">
+                <i class="fas fa-user"></i> My Profile
+            </a>   <a href="{{ route('cart.index') }}">
+                <i class="fas fa-user"></i> My Cart
+            </a>
             <a href="{{ route('orders.index') }}">
                 <i class="fas fa-shopping-bag"></i> My Orders
             </a>
@@ -84,7 +85,7 @@
                                 <i class="fas fa-user"></i> My Profile
                             </a>
                         </li>
-                            
+
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('orders.index') }}">
                                     <i class="fas fa-shopping-bag"></i> My Orders
@@ -121,8 +122,8 @@
                             </li>
                         @endif
                     @else
-                    
-                      
+
+
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">
                                 <i class="fas fa-sign-in-alt"></i> Login
@@ -176,13 +177,13 @@
         border: 3px solid #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
+
     /* Profile card styling */
     .profile-card {
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    
+
     /* Edit form styling */
     .profile-form .form-control {
         background-color: #f8f9fa;
