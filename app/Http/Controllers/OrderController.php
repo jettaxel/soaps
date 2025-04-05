@@ -9,6 +9,34 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+    public function receive(Order $order)
+{
+    // Authorization - only order owner can receive
+    if ($order->user_id != auth()->id()) {
+        abort(403);
+    }
+
+    if ($order->status == 'shipping') {
+        $order->update(['status' => 'completed']);
+        return back()->with('success', 'Order marked as received');
+    }
+
+    return back()->with('error', 'Only shipping orders can be marked as received');
+}
+    public function cancel(Order $order)
+{
+    // Authorization
+    if ($order->user_id != auth()->id()) {
+        abort(403);
+    }
+
+    if ($order->status == 'pending') {
+        $order->update(['status' => 'cancelled']);
+        return back()->with('success', 'Order cancelled');
+    }
+
+    return back()->with('error', 'Only pending orders can be cancelled');
+}
     public function index()
     {
         $orders = Auth::user()->orders()
@@ -88,4 +116,8 @@ class OrderController extends Controller
             'order' => $order->load(['items.product', 'reviews'])
         ]);
     }
+
+
+    // Add this method to your OrderController
+
 }

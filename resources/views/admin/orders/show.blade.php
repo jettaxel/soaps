@@ -10,7 +10,7 @@
                 <div class="input-group">
                     <select name="status" class="form-select">
                         <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
+                        <option value="shipping" {{ $order->status === 'shipping' ? 'selected' : '' }}>shipping</option>
                         <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Completed</option>
                         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                     </select>
@@ -28,9 +28,9 @@
                 <div class="col-md-6">
                     <h5>Order Information</h5>
                     <p><strong>Date:</strong> {{ $order->created_at->format('M d, Y H:i') }}</p>
-                    <p><strong>Status:</strong> <span class="badge bg-{{ 
-                        $order->status === 'completed' ? 'success' : 
-                        ($order->status === 'cancelled' ? 'danger' : 'warning') 
+                    <p><strong>Status:</strong> <span class="badge bg-{{
+                        $order->status === 'completed' ? 'success' :
+                        ($order->status === 'cancelled' ? 'danger' : 'warning')
                     }}">{{ ucfirst($order->status) }}</span></p>
                     <p><strong>Total:</strong> ₱{{ number_format($order->total_amount, 2) }}</p>
                 </div>

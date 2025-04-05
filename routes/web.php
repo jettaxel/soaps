@@ -54,6 +54,13 @@ Route::post('/import', [ImportController::class, 'store'])->name('import.store')
 // Orders
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store')->middleware('auth');
 Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('auth');
+Route::put('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+    ->name('orders.cancel')
+    ->middleware('auth');
+Route::put('/orders/{order}/receive', [OrderController::class, 'receive'])
+->name('orders.receive')
+->middleware('auth');
+
 
 // Reviews
 Route::get('/orders/{order}/reviews/{product}/create', [ReviewController::class, 'create'])
@@ -106,9 +113,7 @@ Route::get('/', function () {
 Route::get('/', [ProductController::class, 'publicIndex'])->name('home');
 // or if you want to keep it as publicIndex:
 Route::get('/', [ProductController::class, 'publicIndex'])->name('products.public_index');
-
-Route::get('/products', [ProductController::class, 'index'])->name('products.index')
-    ->middleware(['auth', 'can:admin']);
+Route::get('/products', [ProductController::class, 'index'])->name('products.index')->middleware(['auth', 'can:admin']);
 
 
 
