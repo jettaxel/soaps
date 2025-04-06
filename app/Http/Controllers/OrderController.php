@@ -6,7 +6,10 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Mail\OrderConfirmation;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use App\Models\OrderItem;
 class OrderController extends Controller
 {
     public function receive(Order $order)
@@ -63,51 +66,74 @@ class OrderController extends Controller
         return view('orders.create', compact('cartItems', 'total'));
     }
 
+
     public function store(Request $request)
-{
-    // Use the CartController's method to get user-specific cart
-    $cartItems = app(CartController::class)->getUserCart();
+    {
+        // Start database transaction
+        return DB::transaction(function () use ($request) {
+            // Get user cart
+            $cartItems = app(CartController::class)->getUserCart();
 
-    // Handle empty cart scenario
-    if (empty($cartItems) && !$request->has('product_id')) {
-        return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+            // Validate cart
+            if (empty($cartItems)) {
+                return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+            }
+
+            // Check stock availability
+            foreach ($cartItems as $productId => $item) {
+                $product = Product::findOrFail($productId);
+
+                if ($product->stock < $item['quantity']) {
+                    return redirect()->route('cart.index')
+                        ->with('error', "Sorry, we only have {$product->stock} {$product->name} in stock");
+                }
+            }
+
+            // Calculate total
+            $total = array_reduce($cartItems, fn($total, $item) =>
+                $total + ($item['price'] * $item['quantity']), 0);
+
+            // Create order
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'total_amount' => $total,
+                'status' => 'pending',
+                'tracking_number' => 'SH-' . strtoupper(uniqid()), // Generate tracking number
+            ]);
+
+            // Create order items and update stock
+            foreach ($cartItems as $productId => $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'subtotal' => $item['price'] * $item['quantity']
+                ]);
+
+                Product::where('id', $productId)
+                    ->decrement('stock', $item['quantity']);
+            }
+
+            // Clear cart
+            app(CartController::class)->clearCart();
+
+            try {
+                // Send confirmation email with PDF
+                Mail::to(auth()->user()->email)
+                    ->send(new OrderConfirmation($order));
+            } catch (\Exception $e) {
+                // Log email error but don't fail the order
+                \Log::error('Order confirmation email failed: ' . $e->getMessage());
+            }
+
+            return redirect()->route('orders.show', $order)
+                ->with([
+                    'success' => 'Order placed successfully!',
+                    'order_id' => $order->id
+                ]);
+        });
     }
-
-    // Handle cart checkout
-    foreach ($cartItems as $productId => $item) {
-        $product = Product::find($productId);
-        if (!$product || $product->stock < $item['quantity']) {
-            return redirect()->route('cart.index')
-                ->with('error', "{$product->name} doesn't have enough stock");
-        }
-    }
-
-    // Create order
-    $order = Order::create([
-        'user_id' => auth()->id(),
-        'total_amount' => array_reduce($cartItems, function($total, $item) {
-            return $total + ($item['price'] * $item['quantity']);
-        }, 0),
-        'status' => 'pending'
-    ]);
-
-    // Create order items
-    foreach ($cartItems as $productId => $item) {
-        $order->items()->create([
-            'product_id' => $productId,
-            'quantity' => $item['quantity'],
-            'price' => $item['price']
-        ]);
-
-        Product::find($productId)->decrement('stock', $item['quantity']);
-    }
-
-    // Clear cart using controller method
-    app(CartController::class)->clearCart();
-
-    return redirect()->route('orders.show', $order)
-        ->with('success', 'Order placed successfully!');
-}
 
 
     public function show(Order $order)

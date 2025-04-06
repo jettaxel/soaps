@@ -147,7 +147,13 @@ Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
 
 
 Route::prefix('admin')->group(function () {
-    
+
     Route::get('/reports/sales', [ReportController::class, 'salesReports'])->name('admin.reports.sales');
     Route::post('/reports/sales-data', [ReportController::class, 'getSalesData'])->name('admin.reports.sales-data');
 });
+
+Route::get('/download-receipt/{order}', function (\App\Models\Order $order) {
+    $path = storage_path('app/public/pdfs/Order_' . $order->id . '.pdf');
+    if (!file_exists($path)) abort(404);
+    return response()->download($path);
+})->name('download.receipt');
