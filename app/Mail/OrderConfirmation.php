@@ -6,7 +6,7 @@ use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf; // ✅ Correct facade
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderConfirmation extends Mailable
 {

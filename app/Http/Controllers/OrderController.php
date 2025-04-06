@@ -6,40 +6,73 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\OrderCancelled;
+use App\Mail\OrderReceived;
 use App\Mail\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem;
+
 class OrderController extends Controller
 {
     public function receive(Order $order)
-{
-    // Authorization - only order owner can receive
-    if ($order->user_id != auth()->id()) {
-        abort(403);
+    {
+        // Authorization - only order owner can receive
+        if ($order->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        return DB::transaction(function () use ($order) {
+            if ($order->status == 'shipping') {
+                $order->update(['status' => 'completed']);
+
+                try {
+                    Mail::to(auth()->user()->email)  // Changed to use auth()->user()
+                        ->send(new OrderReceived($order));
+
+                    \Log::info("Order received email sent for #{$order->id}");
+                } catch (\Exception $e) {
+                    \Log::error("Order received email failed: ".$e->getMessage());
+                    // Continue despite email failure
+                }
+
+                return back()->with('success', 'Order marked as received');
+            }
+
+            return back()->with('error', 'Only shipping orders can be marked as received');
+        });
     }
 
-    if ($order->status == 'shipping') {
-        $order->update(['status' => 'completed']);
-        return back()->with('success', 'Order marked as received');
-    }
-
-    return back()->with('error', 'Only shipping orders can be marked as received');
-}
     public function cancel(Order $order)
-{
-    // Authorization
-    if ($order->user_id != auth()->id()) {
-        abort(403);
+    {
+        // Authorization
+        if ($order->user_id != auth()->id()) {
+            abort(403);
+        }
+
+        return DB::transaction(function () use ($order) {
+            if ($order->status == 'pending') {
+                $order->update(['status' => 'cancelled']);
+
+                try {
+                    Mail::to(auth()->user()->email)  // Changed to use auth()->user()
+
+                        ->send(new OrderCancelled($order));
+
+                    \Log::info("Order cancelled email sent for #{$order->id}");
+                } catch (\Exception $e) {
+                    \Log::error("Order cancelled email failed: ".$e->getMessage());
+                    // Continue despite email failure
+                }
+
+                return back()->with('success', 'Order cancelled');
+            }
+
+            return back()->with('error', 'Only pending orders can be cancelled');
+        });
     }
 
-    if ($order->status == 'pending') {
-        $order->update(['status' => 'cancelled']);
-        return back()->with('success', 'Order cancelled');
-    }
 
-    return back()->with('error', 'Only pending orders can be cancelled');
-}
     public function index()
     {
         $orders = Auth::user()->orders()
@@ -144,6 +177,6 @@ class OrderController extends Controller
     }
 
 
-    // Add this method to your OrderController
+
 
 }
