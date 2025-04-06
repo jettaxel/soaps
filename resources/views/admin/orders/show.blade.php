@@ -7,15 +7,20 @@
             <h5 class="mb-0">Order #{{ $order->id }}</h5>
             <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
                 @csrf
-                <div class="input-group">
-                    <select name="status" class="form-select">
-                        <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="shipping" {{ $order->status === 'shipping' ? 'selected' : '' }}>shipping</option>
-                        <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="shipping" {{ $order->status == 'shipping' ? 'selected' : '' }}>Shipping</option>
+                        <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                     </select>
-                    <button type="submit" class="btn btn-primary">Update</button>
                 </div>
+                <div class="mb-3">
+                    <label for="admin_note" class="form-label">Admin Note (Optional)</label>
+                    <textarea name="admin_note" id="admin_note" class="form-control" rows="3" placeholder="Add any notes for the customer..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Status</button>
             </form>
         </div>
         <div class="card-body">
