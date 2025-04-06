@@ -141,7 +141,7 @@ class ProductController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        $products = $query->paginate(2);
+        $products = $query->paginate(10);
         $categories = Category::all();
 
         return view('products.public_index', compact('products', 'categories'));

@@ -30,6 +30,7 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:3',
+            'address' => 'nullable|string', // Add validation for address
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -38,11 +39,12 @@ class UserController extends Controller
             $photoPath = $request->file('photo')->store('photos', 'public');
         }
 
-        // Save the user
-        $user = User::create([ // Fixed model name
+        // Save the user with address
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'address' => $request->address, // Add address to creation
             'photo' => $photoPath,
         ]);
 
@@ -123,11 +125,13 @@ public function updateProfile(Request $request)
     $request->validate([
         'name' => 'required',
         'email' => 'required|email|unique:users,email,' . $user->id,
+        'address' => 'nullable|string', // Add validation for address
         'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
     $user->name = $request->name;
     $user->email = $request->email;
+    $user->address = $request->address; // Update address
 
     if ($request->hasFile('photo')) {
         $photoPath = $request->file('photo')->store('photos', 'public');

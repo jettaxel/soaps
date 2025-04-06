@@ -27,7 +27,10 @@
             <label class="form-label">Email</label>
             <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
         </div>
-
+        <div class="mb-3">
+            <label>Address</label>
+            <textarea name="address" class="form-control" rows="3">{{ old('address', $user->address) }}</textarea>
+        </div>
         <div class="mb-3">
             <label class="form-label">Profile Photo</label>
             <input type="file" name="photo" class="form-control">
